@@ -498,7 +498,7 @@
             countdownDisplay.classList.add('pulse-number');
             setTimeout(() => countdownDisplay.classList.remove('pulse-number'), 400);
 
-            // start shuffling names rapidly (every 80ms)
+            // start shuffling names rapidly (every 70ms)
             shuffleInterval = setInterval(() => {
                 if (names.length > 0) {
                     const randomIdx = Math.floor(Math.random() * names.length);
@@ -506,7 +506,7 @@
                 } else {
                     shuffleDisplay.textContent = '—';
                 }
-            }, 70);  // rapid cycling
+            }, 70);
 
             // recursive countdown using timeouts
             function tick(nextVal) {
@@ -544,26 +544,29 @@
                     winnerDisplay.classList.add('zoom-winner');
                     setTimeout(() => winnerDisplay.classList.remove('zoom-winner'), 600);
 
-                    // 🎉 confetti (red & white)
-                    confetti({
-                        particleCount: 120,
-                        spread: 80,
-                        origin: { y: 0.6 },
-                        colors: ['#DC143C', '#FF0000', '#FFFFFF', '#FF8A8A']
-                    });
-                    // small second burst
-                    setTimeout(() => {
-                        confetti({
-                            particleCount: 60,
-                            spread: 40,
-                            origin: { y: 0.5, x: 0.4 },
-                            colors: ['#DC143C', '#FFFFFF']
-                        });
-                    }, 180);
-
-                    // done
+                    // ---------- FIX: enable buttons immediately (even if confetti fails) ----------
                     isRunning = false;
                     updateButtons();
+
+                    // 🎉 confetti (red & white) – safe check to avoid breaking if CDN fails
+                    if (typeof confetti === 'function') {
+                        confetti({
+                            particleCount: 120,
+                            spread: 80,
+                            origin: { y: 0.6 },
+                            colors: ['#DC143C', '#FF0000', '#FFFFFF', '#FF8A8A']
+                        });
+                        setTimeout(() => {
+                            confetti({
+                                particleCount: 60,
+                                spread: 40,
+                                origin: { y: 0.5, x: 0.4 },
+                                colors: ['#DC143C', '#FFFFFF']
+                            });
+                        }, 180);
+                    } else {
+                        console.log("Confetti not available – celebration skipped.");
+                    }
                 }
             }
 
@@ -588,8 +591,6 @@
         renderNameList();
         updateButtons();
         resetDisplay();  // everything hidden
-
-        // if user adds first name, buttons become active.
     })();
 </script>
 </body>
